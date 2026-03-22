@@ -149,7 +149,7 @@ int main(int argc ,char** argv) {
   string inp = readFile(INP_FILE);
   
   
-  auto tp = imp(inp);
+  auto tp = find_imports(inp);
   inp = get<0>(tp);
   b = get<1>(tp);
   for (string mod_name: b){
