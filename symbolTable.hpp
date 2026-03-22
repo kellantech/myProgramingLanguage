@@ -12,18 +12,18 @@ class symbolTable{
     parent = move(par);
     has_parent = true;
   }
-  lType* get(string nm){
-    if(tbl.find(nm) == tbl.end()){
+  lType* get(string name){
+    if(tbl.find(name) == tbl.end()){
       if (has_parent){ 
-        return parent->get(nm);
+        return parent->get(name);
       }
       else{
-        error("name "+ nm +" not found");
+        error("name "+ name +" not found");
         return nullptr;
       }
     }
     else {
-      return move(tbl[nm]);
+      return move(tbl[name]);
     }
   }
   void set(string n,lType* v){
