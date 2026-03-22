@@ -5,16 +5,16 @@ class symbolTable{
   public:
   map<string,lType*>& tbl;
   symbolTable* parent;
-  bool p = false;
+  bool has_parent = false;
   symbolTable(map<string,lType*>& t)
           :tbl(t){}
   void setParent(symbolTable* par){
     parent = move(par);
-    p = true;
+    has_parent = true;
   }
   lType* get(string nm){
     if(tbl.find(nm) == tbl.end()){
-      if (p){ 
+      if (has_parent){ 
         return parent->get(nm);
       }
       else{
