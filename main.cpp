@@ -89,18 +89,21 @@ int main(int argc ,char** argv) {
   bool INTERP = 1;
   bool IR = 0;
   bool LINK = 0;
+
   
   string FILE;
+  string INP_FILE = "main.w";
+  
   if (argc == 1){
     cout << "WOAJ: A custom built programming language" <<endl;
     cout << "Usage" <<endl;
-    cout << "./main [filename]" <<endl;
+    cout << "./main [output filename]" <<endl;
     cout << " -i     Run in debug/info mode" <<endl;
     cout << " -c     enable compiler mode" <<endl;
     cout << " --ir   print LLVM IR" <<endl;
     cout << " -l     link object file" <<endl;
     cout << " -O     optimize" <<endl;
-
+    cout << "Note: main.w is currently hardcoded input file" << endl;
     
     return 0;
   }
@@ -126,6 +129,7 @@ int main(int argc ,char** argv) {
       FILE = arg;
     }
   }
+  
   if(FILE == "" && LINK) { FILE = "a.out";}
   else if (FILE == "") { FILE = "out.o"; }
   if(!INTERP){
@@ -134,38 +138,36 @@ int main(int argc ,char** argv) {
     InitializeNativeTargetAsmParser();
   }
   vector<string> b;
-  map<string,lType*> m;
-  symbolTable gst(m);
+  map<string,lType*> var_map;  //initialize map for symbol table
+  symbolTable gst(var_map); //global symbol table
   if (INTERP){
     gst.set("print", new builtInFn(1,&print));
     gst.set("input", new builtInFn(1,&input));
   }
   initModule();
   
-  string inp = readFile("main.?");
+  string inp = readFile(INP_FILE);
   
   
   auto tp = imp(inp);
   inp = get<0>(tp);
   b = get<1>(tp);
-  for (string mn: b){
-    if (INTERP) { getMod(mn,gst); }
+  for (string mod_name: b){
+    if (INTERP) { getMod(mod_name,gst); }
   };
-  lexer ls (inp);
-  vector<token>r = ls.gen_toks();
+  lexer lex (inp);
+  vector<token> tokens = lex.gen_toks();
   if (INFO){  
-    for(auto e:r){ e.print(); }
-      cout<<endl;
+    for(auto info: tokens){ info.print(); }
+    cout<<endl;
   }
-  parser p (r);
+  parser main_parser (tokens);
   while(1){
-  astNode* exp = p.logical_expr();
-  if (INFO){ exp->print(); cout << endl; }
-  if (!INTERP) { exp->codegen(); }
-  if (INTERP) { exp->exec(gst); }
-  if(p.cur.type == tt("NONE")){
-    break;
-  }
+    astNode* exp = main_parser.logical_expr();
+    if (INFO){ exp->print(); cout << endl; }
+    if (!INTERP) { exp->codegen(); }
+    if (INTERP) { exp->exec(gst); }
+    if(main_parser.cur.type == tt("NONE")){break; }
   }
   if (!INTERP){
     InitializeAllTargetInfos();
@@ -178,10 +180,10 @@ int main(int argc ,char** argv) {
     if (IR) { mod->print(errs(),nullptr); }
     if (!LINK) { genObj(FILE); }
     if (LINK) {
-      char ff[] = "/tmp/fileXXXXXX";
-      int fd = mkstemp(ff);
+      char tmp_file[] = "/tmp/fileXXXXXX";
+      int _file_desc = mkstemp(tmp_file);
       genObj(ff);
-      system(("clang++ libio.so "+ string(ff)+" -o " + FILE +" -Wl,-rpath,`pwd`").c_str());
+      system(("clang++ libio.so "+ string(tmp_file)+" -o " + FILE +" -Wl,-rpath,`pwd`").c_str());
     }
   }
   
