@@ -6,8 +6,8 @@ class symbolTable{
   map<string,lType*>& tbl;
   symbolTable* parent;
   bool has_parent = false;
-  symbolTable(map<string,lType*>& t)
-          :tbl(t){}
+  symbolTable(map<string,lType*>& init_tbl)
+          :tbl(init_tbl){}
   void setParent(symbolTable* par){
     parent = move(par);
     has_parent = true;
