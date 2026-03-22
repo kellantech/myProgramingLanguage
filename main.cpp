@@ -1,3 +1,5 @@
+
+// include LLVM Header files
 #include "llvm/ADT/APFloat.h"
 #include "llvm/ADT/Optional.h"
 #include "llvm/ADT/STLExtras.h"
@@ -41,7 +43,7 @@
 using namespace std;
 using namespace llvm;
 
-bool OPT = false;
+bool OPT = false;  
 
 #include "utils.hpp"
 
@@ -49,7 +51,7 @@ class lType;
 class astNode;
 class symbolTable;
 
-///////
+
 #include "symbolTable.hpp"
 #include "types/lType_base.hpp"
 #include "ast/astNode_base.hpp"
@@ -67,6 +69,8 @@ class symbolTable;
 #include "getMod.hpp"
 
 
+// builtin functions 
+// TODO: move to seperate file
 lType* print(vector<lType*> inp){
   inp[0]->print();
   cout << endl;
@@ -74,7 +78,6 @@ lType* print(vector<lType*> inp){
 }
 
 lType* input(vector<lType*> inp){
-  print(inp);
   string in;
   cin >> in;
   return new stringType(in);
@@ -86,7 +89,21 @@ int main(int argc ,char** argv) {
   bool INTERP = 1;
   bool IR = 0;
   bool LINK = 0;
+  
   string FILE;
+  if (argc == 1){
+    cout << "WOAJ: A custom built programming language" <<endl;
+    cout << "Usage" <<endl;
+    cout << "./main [filename]" <<endl;
+    cout << " -i     Run in debug/info mode" <<endl;
+    cout << " -c     enable compiler mode" <<endl;
+    cout << " --ir   print LLVM IR" <<endl;
+    cout << " -l     link object file" <<endl;
+    cout << " -O     optimize" <<endl;
+
+    
+    return 0;
+  }
   
   for (int i = 1; i < argc; i++){
     string arg = argv[i];
@@ -127,10 +144,6 @@ int main(int argc ,char** argv) {
   
   string inp = readFile("main.?");
   
-  // string inp = "";
-  // inp = "";
-  // cout << "> ";
-  // getline(cin,inp);
   
   auto tp = imp(inp);
   inp = get<0>(tp);
