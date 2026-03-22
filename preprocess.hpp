@@ -2,7 +2,7 @@
 #define _PREP_H
 
 
-tuple<string,vector<string>> imp(string n){
+tuple<string,vector<string>> find_imports(string n){
   string n_c = n;
   regex r{"import \"([a-zA-z0-9_\?./]*)\""};
   smatch m;
